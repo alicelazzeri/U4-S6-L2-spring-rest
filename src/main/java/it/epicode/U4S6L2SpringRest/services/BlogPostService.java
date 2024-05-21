@@ -30,7 +30,7 @@ public class BlogPostService {
     // POST
 
     public BlogPost saveBlogPost(BlogPost blogPost) {
-        if (blogPost.getCover().isEmpty() || blogPost.getCover() == null) {
+        if (blogPost.getCover() == null || blogPost.getCover().isEmpty()) {
             blogPost.setCover("https://picsum.photos/200/300");
         }
         blogPostRepository.save(blogPost);
@@ -41,13 +41,12 @@ public class BlogPostService {
 
     public BlogPost updateBlogPost(long id, BlogPost updatedBlogPost) {
         var blogPost = blogPostRepository.findById(id).orElseThrow(() -> new NotFoundException(id));
-        blogPost.setCategory("History");
-        blogPost.setTitle("WWI (1914-1918");
-        blogPost.setCover("https://picsum.photos/id/11/200/300");
-        blogPost.setContent("World War I or the First World War (28 July 1914 – 11 November 1918) " +
-                "was a global conflict between two coalitions: " +
-                "the Allies and the Central Powers.");
-        blogPost.setReadingTime(Duration.ofMinutes(5));
+        blogPost.setCategory(updatedBlogPost.getCategory());
+        blogPost.setTitle(updatedBlogPost.getTitle());
+        blogPost.setCover(updatedBlogPost.getCover());
+        blogPost.setContent(updatedBlogPost.getContent());
+        blogPost.setReadingTime(updatedBlogPost.getReadingTime());
+        blogPostRepository.save(blogPost);
         return blogPost;
     }
 
@@ -56,8 +55,4 @@ public class BlogPostService {
     public void deleteBlogPost(long id) {
         blogPostRepository.deleteById(id);
     }
-
-
-
-
 }

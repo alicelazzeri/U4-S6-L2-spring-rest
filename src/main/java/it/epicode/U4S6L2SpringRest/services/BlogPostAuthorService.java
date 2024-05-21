@@ -30,7 +30,7 @@ public class BlogPostAuthorService {
     // POST
 
     public BlogPostAuthor saveBlogPostAuthor(BlogPostAuthor blogPostAuthor) {
-        if (blogPostAuthor.getAvatar().isEmpty() || blogPostAuthor.getAvatar() == null) {
+        if (blogPostAuthor.getAvatar() == null || blogPostAuthor.getAvatar().isEmpty()) {
             blogPostAuthor.setAvatar("https://ui-avatars.com/api/?name=" + blogPostAuthor.getFirstName() + "+" + blogPostAuthor.getLastName());
         }
         blogPostAuthorRepository.save(blogPostAuthor);
@@ -41,11 +41,13 @@ public class BlogPostAuthorService {
 
     public BlogPostAuthor updateBlogPostAuthor(long id, BlogPostAuthor updatedBlogPostAuthor) {
         var blogPostAuthor = blogPostAuthorRepository.findById(id).orElseThrow(() -> new NotFoundException(id));
-        blogPostAuthor.setFirstName("Nicola");
-        blogPostAuthor.setLastName("Rossi");
-        blogPostAuthor.setEmail("nicoross@live.com");
-        blogPostAuthor.setDateOfBirth(LocalDate.of(1196, 3, 30));
-        blogPostAuthor.setAvatar("https://ui-avatars.com/api/?name=" + updatedBlogPostAuthor.getFirstName() + "+" + updatedBlogPostAuthor.getLastName());
+        blogPostAuthor.setFirstName(updatedBlogPostAuthor.getFirstName());
+        blogPostAuthor.setLastName(updatedBlogPostAuthor.getLastName());
+        blogPostAuthor.setEmail(updatedBlogPostAuthor.getEmail());
+        blogPostAuthor.setDateOfBirth(updatedBlogPostAuthor.getDateOfBirth());
+        blogPostAuthor.setAvatar("https://ui-avatars.com/api/?name="
+                + updatedBlogPostAuthor.getFirstName() + "+"
+                + updatedBlogPostAuthor.getLastName());
         blogPostAuthorRepository.save(blogPostAuthor);
         return blogPostAuthor;
     }
