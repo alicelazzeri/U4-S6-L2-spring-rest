@@ -16,22 +16,29 @@ public class BlogPostAuthorService {
     private BlogPostAuthorRepository blogPostAuthorRepository;
 
     public BlogPostAuthor saveBlogPostAuthor(BlogPostAuthor blogPostAuthor) {
-        BlogPostAuthor.builder()
-                .withFirstName("Alice")
-                .withLastName("Lazzeri")
-                .withEmail("alice@gmail.com")
-                .withDateOfBirth(LocalDate.of(1995, 9, 2))
-                .withAvatar("https://ui-avatars.com/api/?name=" + blogPostAuthor.getFirstName() + "+" + blogPostAuthor.getLastName())
-                        .build();
+        if (blogPostAuthor.getAvatar().isEmpty() || blogPostAuthor.getAvatar() == null) {
+            blogPostAuthor.setAvatar("https://ui-avatars.com/api/?name=" + blogPostAuthor.getFirstName() + "+" + blogPostAuthor.getLastName());
+        }
         blogPostAuthorRepository.save(blogPostAuthor);
         return blogPostAuthor;
     }
 
-    public List<BlogPostAuthor> findAllBlogPostAuthors() {
+    public BlogPostAuthor updateBlogPostAuthor(long id, BlogPostAuthor updatedBlogPostAuthor) {
+        var blogPostAuthor = blogPostAuthorRepository.findById(id).orElseThrow(() -> new NotFoundException(id));
+        blogPostAuthor.setFirstName("Nicola");
+        blogPostAuthor.setLastName("Rossi");
+        blogPostAuthor.setEmail("nicoross@live.com");
+        blogPostAuthor.setDateOfBirth(LocalDate.of(1196, 3, 30));
+        blogPostAuthor.setAvatar("https://ui-avatars.com/api/?name=" + updatedBlogPostAuthor.getFirstName() + "+" + updatedBlogPostAuthor.getLastName());
+        blogPostAuthorRepository.save(blogPostAuthor);
+        return blogPostAuthor;
+    }
+
+    public List<BlogPostAuthor> getAllBlogPostAuthors() {
         return blogPostAuthorRepository.findAll();
     }
 
-    public BlogPostAuthor findBlogPostAuthorById(long id) {
+    public BlogPostAuthor getBlogPostAuthorById(long id) {
         return blogPostAuthorRepository.findById(id).orElseThrow(() -> new NotFoundException(id));
     }
 

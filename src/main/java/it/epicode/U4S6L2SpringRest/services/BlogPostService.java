@@ -16,24 +16,30 @@ public class BlogPostService {
     private BlogPostRepository blogPostRepository;
 
     public BlogPost saveBlogPost(BlogPost blogPost) {
-        BlogPost.builder()
-                .withCategory("History")
-                .withTitle("WWI (1914-1918")
-                .withCover("https://picsum.photos/200/300")
-                .withContent("World War I or the First World War (28 July 1914 – 11 November 1918) " +
-                        "was a global conflict between two coalitions: " +
-                        "the Allies and the Central Powers.")
-                .withReadingTime(Duration.ofMinutes(5))
-                .build();
+        if (blogPost.getCover().isEmpty() || blogPost.getCover() == null) {
+            blogPost.setCover("https://picsum.photos/200/300");
+        }
         blogPostRepository.save(blogPost);
         return blogPost;
     }
 
-    public List<BlogPost> findAllBlogPosts() {
+    public BlogPost updateBlogPost(long id, BlogPost updatedBlogPost) {
+        var blogPost = blogPostRepository.findById(id).orElseThrow(() -> new NotFoundException(id));
+        blogPost.setCategory("History");
+        blogPost.setTitle("WWI (1914-1918");
+        blogPost.setCover("https://picsum.photos/200/300");
+        blogPost.setContent("World War I or the First World War (28 July 1914 – 11 November 1918) " +
+                "was a global conflict between two coalitions: " +
+                "the Allies and the Central Powers.");
+        blogPost.setReadingTime(Duration.ofMinutes(5));
+        return blogPost;
+    }
+
+    public List<BlogPost> getAllBlogPosts() {
         return blogPostRepository.findAll();
     }
 
-    public BlogPost findBlogPostById(long id) {
+    public BlogPost getBlogPostById(long id) {
         return blogPostRepository.findById(id).orElseThrow(()-> new NotFoundException(id));
     }
 

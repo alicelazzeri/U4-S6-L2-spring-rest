@@ -24,8 +24,4 @@ public class BlogPostAuthor {
     private String email;
     private LocalDate dateOfBirth;
     private String avatar;
-
-
-
-
 }
