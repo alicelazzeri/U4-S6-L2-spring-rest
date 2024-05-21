@@ -15,6 +15,20 @@ public class BlogPostAuthorService {
     @Autowired
     private BlogPostAuthorRepository blogPostAuthorRepository;
 
+    // GET all
+
+    public List<BlogPostAuthor> getAllBlogPostAuthors() {
+        return blogPostAuthorRepository.findAll();
+    }
+
+    // GET
+
+    public BlogPostAuthor getBlogPostAuthorById(long id) {
+        return blogPostAuthorRepository.findById(id).orElseThrow(() -> new NotFoundException(id));
+    }
+
+    // POST
+
     public BlogPostAuthor saveBlogPostAuthor(BlogPostAuthor blogPostAuthor) {
         if (blogPostAuthor.getAvatar().isEmpty() || blogPostAuthor.getAvatar() == null) {
             blogPostAuthor.setAvatar("https://ui-avatars.com/api/?name=" + blogPostAuthor.getFirstName() + "+" + blogPostAuthor.getLastName());
@@ -22,6 +36,8 @@ public class BlogPostAuthorService {
         blogPostAuthorRepository.save(blogPostAuthor);
         return blogPostAuthor;
     }
+
+    // PUT
 
     public BlogPostAuthor updateBlogPostAuthor(long id, BlogPostAuthor updatedBlogPostAuthor) {
         var blogPostAuthor = blogPostAuthorRepository.findById(id).orElseThrow(() -> new NotFoundException(id));
@@ -34,13 +50,7 @@ public class BlogPostAuthorService {
         return blogPostAuthor;
     }
 
-    public List<BlogPostAuthor> getAllBlogPostAuthors() {
-        return blogPostAuthorRepository.findAll();
-    }
-
-    public BlogPostAuthor getBlogPostAuthorById(long id) {
-        return blogPostAuthorRepository.findById(id).orElseThrow(() -> new NotFoundException(id));
-    }
+    // DELETE
 
     public void deleteBlogPostAuthor(long id) {
         blogPostAuthorRepository.deleteById(id);
