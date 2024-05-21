@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Duration;
-
 @Entity
 @Table(name = "blog_posts")
 @Data
@@ -30,5 +28,5 @@ public class BlogPost {
     @Column
     private String content;
     @Column
-    private Duration readingTime;
+    private int readingTime;
 }

@@ -19,9 +19,15 @@ public class BlogPostAuthor {
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private long id;
+
+    @Column
     private String firstName;
+    @Column
     private String lastName;
+    @Column
     private String email;
+    @Temporal(TemporalType.DATE)
     private LocalDate dateOfBirth;
+    @Column
     private String avatar;
 }
