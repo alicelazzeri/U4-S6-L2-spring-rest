@@ -1,5 +1,6 @@
 package it.epicode.U4S6L2SpringRest.entities;
 
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,9 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(setterPrefix = "with")
-
-public class BlogPost {
-
+public class NewBlogPostPayload {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -29,8 +28,6 @@ public class BlogPost {
     private String content;
     @Column
     private int readingTime;
-
-    @ManyToOne
-    @JoinColumn(name = "blog_post_author_id")
-    private BlogPostAuthor blogPostAuthor;
+    @Column
+    private long blogPostAuthor;
 }

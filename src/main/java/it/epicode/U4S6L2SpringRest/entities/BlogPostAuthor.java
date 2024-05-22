@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "blog_post_authors")
@@ -30,4 +32,7 @@ public class BlogPostAuthor {
     private LocalDate dateOfBirth;
     @Column
     private String avatar;
+
+    @OneToMany(mappedBy = "blogPostAuthor")
+    private List<BlogPost> blogPosts = new ArrayList<>();
 }
