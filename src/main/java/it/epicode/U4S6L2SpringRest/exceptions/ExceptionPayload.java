@@ -2,6 +2,7 @@ package it.epicode.U4S6L2SpringRest.exceptions;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 
@@ -10,5 +11,6 @@ import java.time.LocalDateTime;
 
 public class ExceptionPayload {
     private String message;
+    HttpStatus httpStatus;
     private LocalDateTime createdAt;
 }

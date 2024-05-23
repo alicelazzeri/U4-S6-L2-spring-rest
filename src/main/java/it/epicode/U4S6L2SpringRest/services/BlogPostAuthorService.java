@@ -4,6 +4,8 @@ import it.epicode.U4S6L2SpringRest.entities.BlogPostAuthor;
 import it.epicode.U4S6L2SpringRest.exceptions.NotFoundException;
 import it.epicode.U4S6L2SpringRest.repositories.BlogPostAuthorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -17,8 +19,8 @@ public class BlogPostAuthorService {
 
     // GET all
 
-    public List<BlogPostAuthor> getAllBlogPostAuthors() {
-        return blogPostAuthorRepository.findAll();
+    public Page<BlogPostAuthor> getAllBlogPostAuthors(Pageable pageable) {
+        return blogPostAuthorRepository.findAll(pageable);
     }
 
     // GET

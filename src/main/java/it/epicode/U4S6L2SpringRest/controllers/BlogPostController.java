@@ -1,14 +1,18 @@
 package it.epicode.U4S6L2SpringRest.controllers;
 
 import it.epicode.U4S6L2SpringRest.entities.BlogPost;
+import it.epicode.U4S6L2SpringRest.entities.BlogPostAuthor;
+import it.epicode.U4S6L2SpringRest.entities.NewBlogPostPayload;
+import it.epicode.U4S6L2SpringRest.exceptions.NoContentException;
 import it.epicode.U4S6L2SpringRest.exceptions.NotFoundException;
+import it.epicode.U4S6L2SpringRest.services.BlogPostAuthorService;
 import it.epicode.U4S6L2SpringRest.services.BlogPostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/blogPosts")
@@ -18,28 +22,52 @@ public class BlogPostController {
     @Autowired
     private BlogPostService blogPostService;
 
+    @Autowired
+    private BlogPostAuthorService blogPostAuthorService;
+
     // GET /blogPosts => ritorna la lista di blog post
 
     @GetMapping
-    public ResponseEntity<List<BlogPost>> getAllBlogPosts() {
-        List<BlogPost> blogPosts = blogPostService.getAllBlogPosts();
-        ResponseEntity<List<BlogPost>> responseEntity = new ResponseEntity<>(blogPosts, HttpStatus.OK);
-        return responseEntity;
+    public ResponseEntity<Page<BlogPost>> getAllBlogPosts(Pageable pageable) {
+        Page<BlogPost> blogPosts = (Page<BlogPost>) blogPostService.getAllBlogPosts(pageable);
+        if (blogPosts.isEmpty()) {
+            throw new NoContentException("The list of blog posts in empty.");
+        } else {
+            ResponseEntity<Page<BlogPost>> responseEntity = new ResponseEntity<>(blogPosts, HttpStatus.OK);
+            return responseEntity;
+        }
     }
 
     // GET /blogPosts /123 => ritorna un singolo blog post
 
     @GetMapping("/{id}")
-    public ResponseEntity<BlogPost> getBlogPostById(@PathVariable long id) throws NotFoundException {
+    public ResponseEntity<BlogPost> getBlogPostById(@PathVariable long id) {
         BlogPost blogPost = blogPostService.getBlogPostById(id);
-        ResponseEntity<BlogPost> responseEntity = new ResponseEntity<>(blogPost, HttpStatus.OK);
-        return responseEntity;
+        if (blogPost == null) {
+          throw new NotFoundException(id);
+        } else {
+            ResponseEntity<BlogPost> responseEntity = new ResponseEntity<>(blogPost, HttpStatus.OK);
+            return responseEntity;
+        }
     }
 
     // POST /blogPosts => crea un nuovo blog post
 
     @PostMapping
-    public ResponseEntity<BlogPost> saveBlogPost(@RequestBody BlogPost blogPost) {
+    public ResponseEntity<BlogPost> saveBlogPost(@RequestBody NewBlogPostPayload blogPostPayload) {
+        BlogPost blogPost = BlogPost.builder()
+                .withCategory(blogPostPayload.getCategory())
+                .withTitle(blogPostPayload.getTitle())
+                .withCover(blogPostPayload.getCover())
+                .withContent(blogPostPayload.getContent())
+                .withReadingTime(blogPostPayload.getReadingTime())
+                .build();
+        BlogPostAuthor author = blogPostAuthorService.getBlogPostAuthorById(blogPostPayload.getAuthorId());
+        if (author == null) {
+            throw new NotFoundException("Author with id " + blogPostPayload.getAuthorId() + " not found.");
+        } else {
+            blogPost.setBlogPostAuthor(author);
+        }
         BlogPost savedBlogPost = blogPostService.saveBlogPost(blogPost);
         ResponseEntity<BlogPost> responseEntity = new ResponseEntity<>(savedBlogPost, HttpStatus.CREATED);
         return responseEntity;
@@ -48,8 +76,27 @@ public class BlogPostController {
     // PUT /blogPosts /123 => modifica lo specifico blog post
 
     @PutMapping("/{id}")
-    public ResponseEntity<BlogPost> updateBlogPost(@PathVariable long id, @RequestBody BlogPost updatedBlogPost) {
-        BlogPost updatedPost = blogPostService.updateBlogPost(id, updatedBlogPost);
+    public ResponseEntity<BlogPost> updateBlogPost(@PathVariable long id, @RequestBody NewBlogPostPayload updatedBlogPostPayload) {
+        BlogPost searchedBlogPost = blogPostService.getBlogPostById(id);
+        if (searchedBlogPost == null) {
+            throw new NotFoundException("Blog post with id " + id + " not found.");
+        }
+
+        searchedBlogPost.setCategory(updatedBlogPostPayload.getCategory());
+        searchedBlogPost.setTitle(updatedBlogPostPayload.getTitle());
+        searchedBlogPost.setCover(updatedBlogPostPayload.getCover());
+        searchedBlogPost.setContent(updatedBlogPostPayload.getContent());
+        searchedBlogPost.setReadingTime(updatedBlogPostPayload.getReadingTime());
+
+        if (searchedBlogPost.getBlogPostAuthor().getId() != updatedBlogPostPayload.getAuthorId()) {
+            BlogPostAuthor author = blogPostAuthorService.getBlogPostAuthorById(updatedBlogPostPayload.getAuthorId());
+            if (author == null) {
+                throw new NotFoundException("Author with id " + updatedBlogPostPayload.getAuthorId() + " not found.");
+            }
+        }
+
+        BlogPost updatedPost = blogPostService.updateBlogPost(id, updatedBlogPostPayload);
+
         ResponseEntity<BlogPost> responseEntity = new ResponseEntity<>(updatedPost, HttpStatus.OK);
         return responseEntity;
     }
