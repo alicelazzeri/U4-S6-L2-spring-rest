@@ -1,5 +1,6 @@
 package it.epicode.U4S6L2SpringRest.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,6 +34,7 @@ public class BlogPostAuthor {
     @Column
     private String avatar;
 
-    @OneToMany(mappedBy = "blogPostAuthor")
+    @OneToMany(mappedBy = "blogPostAuthor", cascade = CascadeType.REMOVE)
+    @JsonIgnore
     private List<BlogPost> blogPosts = new ArrayList<>();
 }

@@ -1,8 +1,11 @@
 package it.epicode.U4S6L2SpringRest.controllers;
 
+import it.epicode.U4S6L2SpringRest.dto.ExceptionPayloadDto;
+import it.epicode.U4S6L2SpringRest.dto.ExceptionPayloadWithListDto;
 import it.epicode.U4S6L2SpringRest.entities.BlogPost;
 import it.epicode.U4S6L2SpringRest.entities.BlogPostAuthor;
-import it.epicode.U4S6L2SpringRest.entities.NewBlogPostPayload;
+import it.epicode.U4S6L2SpringRest.dto.NewBlogPostPayloadDto;
+import it.epicode.U4S6L2SpringRest.exceptions.BadRequestException;
 import it.epicode.U4S6L2SpringRest.exceptions.NoContentException;
 import it.epicode.U4S6L2SpringRest.exceptions.NotFoundException;
 import it.epicode.U4S6L2SpringRest.services.BlogPostAuthorService;
@@ -12,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -54,44 +59,49 @@ public class BlogPostController {
     // POST /blogPosts => crea un nuovo blog post
 
     @PostMapping
-    public ResponseEntity<BlogPost> saveBlogPost(@RequestBody NewBlogPostPayload blogPostPayload) {
-        BlogPost blogPost = BlogPost.builder()
-                .withCategory(blogPostPayload.getCategory())
-                .withTitle(blogPostPayload.getTitle())
-                .withCover(blogPostPayload.getCover())
-                .withContent(blogPostPayload.getContent())
-                .withReadingTime(blogPostPayload.getReadingTime())
-                .build();
-        BlogPostAuthor author = blogPostAuthorService.getBlogPostAuthorById(blogPostPayload.getAuthorId());
-        if (author == null) {
-            throw new NotFoundException("Author with id " + blogPostPayload.getAuthorId() + " not found.");
+    public ResponseEntity<BlogPost> saveBlogPost(@RequestBody @Validated NewBlogPostPayloadDto blogPostPayload, BindingResult validation) {
+        if (validation.hasErrors()) {
+            throw new BadRequestException(validation.getAllErrors());
         } else {
-            blogPost.setBlogPostAuthor(author);
+            BlogPost blogPost = BlogPost.builder()
+                    .withCategory(blogPostPayload.category())
+                    .withTitle(blogPostPayload.title())
+                    .withCover(blogPostPayload.cover())
+                    .withContent(blogPostPayload.content())
+                    .withReadingTime(blogPostPayload.readingTime())
+                    .build();
+            BlogPostAuthor author = blogPostAuthorService.getBlogPostAuthorById(blogPostPayload.authorId());
+
+            if (author == null) {
+                throw new NotFoundException("Author with id " + blogPostPayload.authorId() + " not found.");
+            } else {
+                blogPost.setBlogPostAuthor(author);
+            }
+            BlogPost savedBlogPost = blogPostService.saveBlogPost(blogPost);
+            ResponseEntity<BlogPost> responseEntity = new ResponseEntity<>(savedBlogPost, HttpStatus.CREATED);
+            return responseEntity;
         }
-        BlogPost savedBlogPost = blogPostService.saveBlogPost(blogPost);
-        ResponseEntity<BlogPost> responseEntity = new ResponseEntity<>(savedBlogPost, HttpStatus.CREATED);
-        return responseEntity;
     }
 
     // PUT /blogPosts /123 => modifica lo specifico blog post
 
     @PutMapping("/{id}")
-    public ResponseEntity<BlogPost> updateBlogPost(@PathVariable long id, @RequestBody NewBlogPostPayload updatedBlogPostPayload) {
+    public ResponseEntity<BlogPost> updateBlogPost(@PathVariable long id, @RequestBody NewBlogPostPayloadDto updatedBlogPostPayload) {
         BlogPost searchedBlogPost = blogPostService.getBlogPostById(id);
         if (searchedBlogPost == null) {
             throw new NotFoundException("Blog post with id " + id + " not found.");
         }
 
-        searchedBlogPost.setCategory(updatedBlogPostPayload.getCategory());
-        searchedBlogPost.setTitle(updatedBlogPostPayload.getTitle());
-        searchedBlogPost.setCover(updatedBlogPostPayload.getCover());
-        searchedBlogPost.setContent(updatedBlogPostPayload.getContent());
-        searchedBlogPost.setReadingTime(updatedBlogPostPayload.getReadingTime());
+        searchedBlogPost.setCategory(updatedBlogPostPayload.category());
+        searchedBlogPost.setTitle(updatedBlogPostPayload.title());
+        searchedBlogPost.setCover(updatedBlogPostPayload.cover());
+        searchedBlogPost.setContent(updatedBlogPostPayload.content());
+        searchedBlogPost.setReadingTime(updatedBlogPostPayload.readingTime());
 
-        if (searchedBlogPost.getBlogPostAuthor().getId() != updatedBlogPostPayload.getAuthorId()) {
-            BlogPostAuthor author = blogPostAuthorService.getBlogPostAuthorById(updatedBlogPostPayload.getAuthorId());
+        if (searchedBlogPost.getBlogPostAuthor().getId() != updatedBlogPostPayload.authorId()) {
+            BlogPostAuthor author = blogPostAuthorService.getBlogPostAuthorById(updatedBlogPostPayload.authorId());
             if (author == null) {
-                throw new NotFoundException("Author with id " + updatedBlogPostPayload.getAuthorId() + " not found.");
+                throw new NotFoundException("Author with id " + updatedBlogPostPayload.authorId() + " not found.");
             }
         }
 

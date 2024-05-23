@@ -11,6 +11,6 @@ import java.time.LocalDateTime;
 
 public class ExceptionPayload {
     private String message;
-    HttpStatus httpStatus;
+    private HttpStatus httpStatus;
     private LocalDateTime createdAt;
 }

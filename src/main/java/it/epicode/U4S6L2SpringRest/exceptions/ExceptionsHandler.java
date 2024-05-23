@@ -1,6 +1,7 @@
 package it.epicode.U4S6L2SpringRest.exceptions;
 
-import org.hibernate.annotations.NotFound;
+import it.epicode.U4S6L2SpringRest.dto.ExceptionPayloadDto;
+import it.epicode.U4S6L2SpringRest.dto.ExceptionPayloadWithListDto;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -36,7 +37,7 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ResponseEntity<?> handleBadRequestException(BadRequestException e) {
-        ExceptionPayload payload = new ExceptionPayload(e.getMessage(), HttpStatus.BAD_REQUEST,  LocalDateTime.now());
+        ExceptionPayloadWithListDto payload = new ExceptionPayloadWithListDto(e.getMessage(), HttpStatus.BAD_REQUEST,  LocalDateTime.now(), e.getExceptionsList());
         ResponseEntity<?> responseEntity = new ResponseEntity<>(payload, HttpStatus.BAD_REQUEST);
         return responseEntity;
     }
@@ -44,7 +45,7 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(NoContentException.class)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     protected ResponseEntity<?> handleNoContentException(NoContentException e) {
-        ExceptionPayload payload = new ExceptionPayload(e.getMessage(), HttpStatus.NO_CONTENT,LocalDateTime.now());
+        ExceptionPayloadDto payload = new ExceptionPayloadDto(e.getMessage(), HttpStatus.NO_CONTENT,LocalDateTime.now());
         ResponseEntity<?> responseEntity = new ResponseEntity<>(payload, HttpStatus.NO_CONTENT);
         return responseEntity;
     }

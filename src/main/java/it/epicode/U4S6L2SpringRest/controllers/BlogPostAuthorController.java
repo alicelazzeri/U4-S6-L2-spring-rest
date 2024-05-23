@@ -1,6 +1,8 @@
 package it.epicode.U4S6L2SpringRest.controllers;
 
+import it.epicode.U4S6L2SpringRest.dto.NewBlogPostAuthorPayloadDto;
 import it.epicode.U4S6L2SpringRest.entities.BlogPostAuthor;
+import it.epicode.U4S6L2SpringRest.exceptions.BadRequestException;
 import it.epicode.U4S6L2SpringRest.exceptions.NoContentException;
 import it.epicode.U4S6L2SpringRest.exceptions.NotFoundException;
 import it.epicode.U4S6L2SpringRest.services.BlogPostAuthorService;
@@ -9,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -51,10 +55,22 @@ public class BlogPostAuthorController {
 
     @PostMapping
     // @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<BlogPostAuthor> saveBlogPostAuthor(@RequestBody BlogPostAuthor blogPostAuthor) {
-        BlogPostAuthor savedAuthor = blogPostAuthorService.saveBlogPostAuthor(blogPostAuthor);
-        ResponseEntity<BlogPostAuthor> responseEntity = new ResponseEntity<>(savedAuthor, HttpStatus.CREATED);
-        return responseEntity;
+    public ResponseEntity<BlogPostAuthor> saveBlogPostAuthor(@RequestBody @Validated NewBlogPostAuthorPayloadDto blogPostAuthorPayload, BindingResult validation) {
+        BlogPostAuthor blogPostAuthor;
+        if (validation.hasErrors()) {
+            throw new BadRequestException(validation.getAllErrors());
+        } else {
+            blogPostAuthor = BlogPostAuthor.builder()
+                    .withFirstName(blogPostAuthorPayload.firstName())
+                    .withLastName(blogPostAuthorPayload.lastName())
+                    .withEmail(blogPostAuthorPayload.email())
+                    .withAvatar(blogPostAuthorPayload.avatar())
+                    .withDateOfBirth(blogPostAuthorPayload.dateOfBirth())
+                    .build();
+            BlogPostAuthor savedAuthor = blogPostAuthorService.saveBlogPostAuthor(blogPostAuthor);
+            ResponseEntity<BlogPostAuthor> responseEntity = new ResponseEntity<>(savedAuthor, HttpStatus.CREATED);
+            return responseEntity;
+        }
     }
 
 //    PUT /authors/123 => modifica lo specifico autore
